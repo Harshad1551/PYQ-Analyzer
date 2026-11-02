@@ -1,0 +1,14 @@
+{
+  "name": "pyq-frequency-analyzer",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "powershell -Command \"Start-Process npm -ArgumentList 'run dev' -WorkingDirectory './server'; Start-Process npm -ArgumentList 'run dev' -WorkingDirectory './client'\"",
+    "build:client": "cd client && npm install && npm run build",
+    "build:server": "cd server && npm install && npx prisma generate",
+    "build": "cd client && npm install && npm run build && cd ../server && npm install && npx prisma generate",
+    "start": "cd server && npx tsx src/index.ts",
+    "server:start": "cd server && npx tsx src/index.ts",
+    "db:push": "cd server && npx prisma db push"
+  }
+}

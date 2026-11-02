@@ -1,0 +1,75 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Subject {
+  id          String    @id @default(uuid())
+  name        String
+  subjectCode String?
+  description String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  modules     Module[]
+  papers      Paper[]
+}
+
+model Module {
+  id         String     @id @default(uuid())
+  subjectId  String
+  moduleName String
+  order      Int        @default(0)
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+
+  subject    Subject    @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  questions  Question[]
+}
+
+model Paper {
+  id               String               @id @default(uuid())
+  subjectId        String
+  paperName        String
+  year             String?
+  uploadedFilePath String
+  extractionStatus String               @default("PENDING")
+  rawExtractedText String?
+  pageCount        Int?                 @default(1)
+  createdAt        DateTime             @default(now())
+  updatedAt        DateTime             @updatedAt
+
+  subject          Subject              @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  occurrences      QuestionOccurrence[]
+}
+
+model Question {
+  id                    String               @id @default(uuid())
+  moduleId              String
+  canonicalQuestionText String
+  isManual              Boolean              @default(false)
+  createdAt             DateTime             @default(now())
+  updatedAt             DateTime             @updatedAt
+
+  module                Module               @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  occurrences           QuestionOccurrence[]
+}
+
+model QuestionOccurrence {
+  id                   String   @id @default(uuid())
+  questionId           String
+  paperId              String
+  originalQuestionText String
+  sourcePageNumber     Int?
+  marks                String?
+  createdAt            DateTime @default(now())
+
+  question             Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  paper                Paper    @relation(fields: [paperId], references: [id], onDelete: Cascade)
+
+  @@unique([questionId, paperId])
+}
